@@ -1,13 +1,13 @@
-## ---- include = FALSE----------------------------------------------------
+## ---- include = FALSE---------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 library(metawho)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(metawho)
 
 ### specify hazard ratios (hr)
@@ -16,6 +16,8 @@ hr    <- c(0.30, 0.11, 1.25, 0.63, 0.90, 0.28)
 ci.lb <- c(0.09, 0.02, 0.82, 0.42, 0.41, 0.12)
 ### specify upper bound for hr confidence intervals
 ci.ub <- c(1.00, 0.56, 1.90, 0.95, 1.99, 0.67)
+### specify sample number
+ni <- c(16L, 18L, 118L, 122L, 37L, 38L)
 ### trials
 trial <- c("Rizvi 2015", "Rizvi 2015",
           "Rizvi 2018", "Rizvi 2018",
@@ -34,25 +36,34 @@ wang2019 =
         hr = hr,
         ci.lb = ci.lb,
         ci.ub = ci.ub,
+        ni = ni,
         stringsAsFactors = FALSE
        )
 
-deft_prepare(wang2019)
+wang2019 = deft_prepare(wang2019)
 
-## ----load_wang2019-------------------------------------------------------
+## ----load_wang2019------------------------------------------------------------
 library(metawho)
 data("wang2019")
 
 wang2019
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # The 'Male' is the reference
 (res = deft_do(wang2019, group_level = c("Male", "Female")))
 
-## ---- fig.width=7--------------------------------------------------------
+## ---- fig.width=8-------------------------------------------------------------
+p1 = deft_show(res, element = "all")
+p1
+
+## ---- fig.width=8-------------------------------------------------------------
+p2 = deft_show(res, element = "subgroup")
+p2
+
+## ---- fig.width=7-------------------------------------------------------------
 forest(res$subgroup$model, showweights = TRUE)
 
-## ---- fig.width=7--------------------------------------------------------
+## ---- fig.width=7-------------------------------------------------------------
 forest(res$subgroup$model, showweights = TRUE, atransf = exp, 
        slab = res$subgroup$data$trial,
        xlab = "Hazard ratio")

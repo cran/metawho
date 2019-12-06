@@ -1,5 +1,7 @@
 ---
 title: "metawho"
+author: "Shixiang Wang <w_shixiang@163.com>"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{metawho}
@@ -24,15 +26,29 @@ The goal of **metawho** is to provide simple R implementation of "Meta-analytica
 
 ## Installation
 
+You can install the stable release of **metawho** from CRAN with:
+
+``` r
+install.packages("metawho")
+```
+
 You can install the development version of **metawho** from GitHub with:
 
 ``` r
 remotes::install_github("ShixiangWang/metawho")
 ```
 
+Visualization feature of **metawho** needs the recent version of **forestmodel**, please run the following commands:
+
+```r
+remotes::install_github("ShixiangWang/forestmodel")
+```
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem.
+
+### Prepare data
 
 If you have HR and confidence intervals, please run `deft_prepare()` firstly.
 
@@ -45,6 +61,8 @@ hr    <- c(0.30, 0.11, 1.25, 0.63, 0.90, 0.28)
 ci.lb <- c(0.09, 0.02, 0.82, 0.42, 0.41, 0.12)
 ### specify upper bound for hr confidence intervals
 ci.ub <- c(1.00, 0.56, 1.90, 0.95, 1.99, 0.67)
+### specify sample number
+ni <- c(16L, 18L, 118L, 122L, 37L, 38L)
 ### trials
 trial <- c("Rizvi 2015", "Rizvi 2015",
           "Rizvi 2018", "Rizvi 2018",
@@ -63,13 +81,14 @@ wang2019 =
         hr = hr,
         ci.lb = ci.lb,
         ci.ub = ci.ub,
+        ni = ni,
         stringsAsFactors = FALSE
        )
 
-deft_prepare(wang2019)
+wang2019 = deft_prepare(wang2019)
 ```
 
-Here we load example data.
+Here we can directly load example data.
 
 ```{r load_wang2019}
 library(metawho)
@@ -78,6 +97,8 @@ data("wang2019")
 wang2019
 ```
 
+### Do deft analysis
+
 Use `deft_do()` function to obtain model results.
 
 ```{r}
@@ -85,7 +106,31 @@ Use `deft_do()` function to obtain model results.
 (res = deft_do(wang2019, group_level = c("Male", "Female")))
 ```
 
-Plot the model results with `forest()` function from **metafor** package.
+### Show analysis result
+
+Use `deft_show()` to visualize results.
+
+To show all entries without model result.
+
+```{r, fig.width=8}
+p1 = deft_show(res, element = "all")
+p1
+```
+
+To show result of subgroup analysis.
+
+```{r, fig.width=8}
+p2 = deft_show(res, element = "subgroup")
+p2
+```
+
+The analysis above reproduced Figure 5 of [reference #1](#references).
+
+
+## Combine with metafor
+
+The result of `deft_do()` contains models constructed by **metafor** package, so you can use features 
+provided by **metafor** package, e.g. plot the model results with `forest()` function from **metafor** package.
 
 ```{r, fig.width=7}
 forest(res$subgroup$model, showweights = TRUE)
@@ -104,7 +149,7 @@ text(9, 4.5, "Hazard Ratio [95% CI]", pos = 2)
 par(op)
 ```
 
-This reproduce Figure 5 of reference #1. Of note, currently **metawho** only support HR values. More usage about model fit, prediction and plotting please refer to [metafor package](https://github.com/wviechtb/metafor).
+More usage about model fit, prediction and plotting please refer to [metafor package](https://github.com/wviechtb/metafor).
 
 ## References
 
